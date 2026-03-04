@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almost There...</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-user-select:none;
+user-select:none;
+-webkit-tap-highlight-color:transparent;
+}
+
+body{
+height:100vh;
+overflow:hidden;
+background:black;
+display:flex;
+justify-content:center;
+align-items:center;
+font-family:'Inter',sans-serif;
+}
+
+/* Night Background */
+.space{
+position:fixed;
+inset:0;
+background:
+radial-gradient(ellipse at 50% 50%, #14001f 0%, #000010 60%, #000000 100%);
+}
+
+/* Stars */
+.star{
+position:absolute;
+width:2px;
+height:2px;
+background:white;
+border-radius:50%;
+box-shadow:0 0 6px white;
+animation:twinkle 2s infinite alternate;
+}
+@keyframes twinkle{
+from{opacity:.4;}
+to{opacity:1;}
+}
+
+/* Snow */
+.snow{
+position:fixed;
+inset:0;
+pointer-events:none;
+}
+
+.snowflake{
+position:absolute;
+top:-10px;
+color:white;
+animation:fall linear forwards;
+}
+
+@keyframes fall{
+to{ transform:translateY(110vh); }
+}
+
+/* Pink Glow */
+.pinkGlow{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at center, rgba(255,105,180,0.25), transparent 70%);
+animation:pulseGlow 4s infinite;
+}
+
+@keyframes pulseGlow{
+0%{opacity:.3;}
+50%{opacity:.6;}
+100%{opacity:.3;}
+}
+
+/* Center */
+.wrapper{
+position:relative;
+z-index:2;
+text-align:center;
+color:white;
+}
+
+h2{
+font-family:'Playfair Display',serif;
+font-size:26px;
+margin-bottom:30px;
+opacity:.9;
+}
+
+/* Glowing Heart */
+.heart{
+font-size:80px;
+cursor:pointer;
+animation:heartBeat 1.5s infinite;
+transition:.3s;
+}
+
+@keyframes heartBeat{
+0%{transform:scale(1);}
+50%{transform:scale(1.2);}
+100%{transform:scale(1);}
+}
+
+.heart:hover{
+transform:scale(1.3);
+filter:drop-shadow(0 0 20px pink);
+}
+
+</style>
+</head>
+<body>
+
+<div class="space"></div>
+<div class="pinkGlow"></div>
+<div class="snow" id="snow"></div>
+
+<div class="wrapper">
+<h2>Tap the heart to reveal… 💖</h2>
+<div class="heart" id="heart">❤️</div>
+</div>
+
+<script>
+
+/* Stars */
+for(let i=0;i<200;i++){
+let star=document.createElement("div");
+star.className="star";
+star.style.top=Math.random()*100+"%";
+star.style.left=Math.random()*100+"%";
+document.body.appendChild(star);
+}
+
+/* Snow */
+setInterval(()=>{
+let flake=document.createElement("div");
+flake.className="snowflake";
+flake.innerHTML="❄";
+flake.style.left=Math.random()*100+"%";
+flake.style.fontSize=(12+Math.random()*12)+"px";
+flake.style.animationDuration=(4+Math.random()*6)+"s";
+document.getElementById("snow").appendChild(flake);
+setTimeout(()=>flake.remove(),10000);
+},120);
+
+/* Heart Click */
+document.getElementById("heart").addEventListener("click",()=>{
+window.location.href="11_scroll_section.html";
+});
+
+</script>
+
+</body>
+</html>

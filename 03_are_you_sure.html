@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Are You Sure?</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+height:100vh;
+overflow:hidden;
+font-family:'Inter',sans-serif;
+color:white;
+background:black;
+}
+
+/* ===== SPACE BACKGROUND ===== */
+.space{
+position:fixed;
+inset:0;
+z-index:0;
+overflow:hidden;
+background:
+radial-gradient(ellipse at 30% 20%, rgba(70,0,120,0.4), transparent 60%),
+radial-gradient(ellipse at 80% 70%, rgba(0,40,120,0.3), transparent 60%),
+radial-gradient(ellipse at 50% 50%, #000814 0%, #000010 60%, #000000 100%);
+}
+
+/* Stars */
+.star{
+position:absolute;
+width:2px;
+height:2px;
+background:white;
+border-radius:50%;
+box-shadow:0 0 6px white;
+animation:twinkle 2s infinite alternate;
+}
+@keyframes twinkle{
+from{opacity:.4;}
+to{opacity:1;}
+}
+
+/* Sun */
+.sun{
+position:absolute;
+top:-150px;
+left:-150px;
+width:450px;
+height:450px;
+background:radial-gradient(circle, rgba(255,200,120,0.4) 0%, transparent 70%);
+filter:blur(50px);
+}
+
+/* Planets */
+.planet{
+position:absolute;
+border-radius:50%;
+box-shadow:inset -15px -15px 30px rgba(0,0,0,0.5);
+animation:float 25s ease-in-out infinite;
+}
+.planet1{
+width:90px;height:90px;top:20%;left:8%;
+background:radial-gradient(circle at 30% 30%, #ff9966, #663300);
+}
+.planet2{
+width:65px;height:65px;bottom:18%;right:12%;
+background:radial-gradient(circle at 30% 30%, #66ccff, #003366);
+animation-duration:35s;
+}
+.planet3{
+width:50px;height:50px;top:65%;left:45%;
+background:radial-gradient(circle at 30% 30%, #cc99ff, #330066);
+animation-duration:30s;
+}
+@keyframes float{
+0%{transform:translateY(0px);}
+50%{transform:translateY(-25px);}
+100%{transform:translateY(0px);}
+}
+
+/* Crescent Moon */
+.moon{
+position:absolute;
+top:80px;
+right:80px;
+width:140px;
+height:140px;
+border-radius:50%;
+background:
+radial-gradient(circle at 35% 50%, #ffffff 40%, #d0d8ff 65%, #aab6ff 75%, transparent 76%),
+radial-gradient(circle at 70% 50%, rgba(0,0,0,0.95) 60%, transparent 61%);
+box-shadow:
+0 0 60px rgba(255,255,255,0.8),
+0 0 120px rgba(150,170,255,0.3);
+}
+
+/* Card */
+.card{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(15px);
+padding:50px;
+border-radius:30px;
+text-align:center;
+width:90%;
+max-width:420px;
+z-index:2;
+}
+
+h2{
+font-family:'Playfair Display',serif;
+font-size:28px;
+margin-bottom:30px;
+line-height:1.4;
+}
+
+/* Button */
+button{
+padding:12px 35px;
+border:none;
+border-radius:40px;
+background:linear-gradient(145deg,#8a2be2,#a855f7);
+color:white;
+cursor:pointer;
+font-size:16px;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px rgba(168,85,247,0.6);
+}
+
+</style>
+</head>
+<body>
+
+<div class="space">
+  <div class="sun"></div>
+  <div class="planet planet1"></div>
+  <div class="planet planet2"></div>
+  <div class="planet planet3"></div>
+  <div class="moon"></div>
+</div>
+
+<div class="card">
+  <h2>Are you really sure? 👀</h2>
+  <button onclick="location.href='04_not_just_pretty.html'">
+    Yes, I'm sure
+  </button>
+</div>
+
+<script>
+const space=document.querySelector(".space");
+for(let i=0;i<250;i++){
+let star=document.createElement("div");
+star.className="star";
+star.style.top=Math.random()*100+"%";
+star.style.left=Math.random()*100+"%";
+space.appendChild(star);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biometric Scan</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-tap-highlight-color: transparent;
+-webkit-user-select: none;
+user-select: none;
+}
+
+body{
+height:100vh;
+overflow:hidden;
+font-family:'Inter',sans-serif;
+background:black;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* ===== NIGHT SKY ===== */
+.space{
+position:fixed;
+inset:0;
+z-index:0;
+background:
+radial-gradient(ellipse at 30% 20%, rgba(70,0,120,0.4), transparent 60%),
+radial-gradient(ellipse at 80% 70%, rgba(0,40,120,0.3), transparent 60%),
+radial-gradient(ellipse at 50% 50%, #000814 0%, #000010 60%, #000000 100%);
+}
+
+.star{
+position:absolute;
+width:2px;
+height:2px;
+background:white;
+border-radius:50%;
+box-shadow:0 0 6px white;
+animation:twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle{
+from{opacity:.4;}
+to{opacity:1;}
+}
+
+.moon{
+position:absolute;
+top:80px;
+right:80px;
+width:140px;
+height:140px;
+border-radius:50%;
+background:
+radial-gradient(circle at 35% 50%, #ffffff 40%, #d0d8ff 65%, #aab6ff 75%, transparent 76%),
+radial-gradient(circle at 70% 50%, rgba(0,0,0,0.95) 60%, transparent 61%);
+box-shadow:
+0 0 60px rgba(255,255,255,0.8),
+0 0 120px rgba(150,170,255,0.3);
+}
+
+/* SNOW */
+.weather{
+position:fixed;
+inset:0;
+pointer-events:none;
+z-index:1;
+overflow:hidden;
+}
+
+.snowflake{
+position:absolute;
+top:-10px;
+color:white;
+opacity:0.9;
+animation:fall linear forwards;
+}
+
+.dot{
+position:absolute;
+top:-10px;
+width:4px;
+height:4px;
+background:white;
+border-radius:50%;
+opacity:0.8;
+animation:fall linear forwards;
+}
+
+@keyframes fall{
+to{ transform:translateY(110vh); }
+}
+
+/* Breeze */
+.breeze{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at center, rgba(255,255,255,0.07), transparent 70%);
+opacity:0;
+transition:1s;
+z-index:1;
+}
+
+.breeze.active{
+opacity:1;
+}
+
+/* Center */
+.wrapper{
+position:relative;
+z-index:2;
+display:flex;
+flex-direction:column;
+align-items:center;
+text-align:center;
+}
+
+h2{
+color:white;
+margin-bottom:35px;
+font-size:22px;
+transition:.5s;
+}
+
+/* Fingerprint */
+.fingerprintWrapper{
+position:relative;
+width:220px;
+height:220px;
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+transition:0.2s;
+}
+
+.fingerprintWrapper.pressed{
+transform:scale(0.95);
+}
+
+.fingerprintWrapper.active{
+filter:drop-shadow(0 0 20px #00ff66);
+}
+
+.fingerprintSVG{
+width:200px;
+height:200px;
+pointer-events:none;
+}
+
+/* Laser */
+.laser{
+position:absolute;
+width:180px;
+height:4px;
+background:linear-gradient(to right, transparent, #00ff66, transparent);
+box-shadow:0 0 12px #00ff66;
+opacity:0;
+}
+
+@keyframes scanMove{
+from{transform:translateY(90px);}
+to{transform:translateY(-90px);}
+}
+
+.laser.active{
+opacity:1;
+animation:scanMove 1.5s linear infinite;
+}
+
+/* Princess Button */
+.princessBtn{
+margin-top:30px;
+padding:12px 28px;
+border:none;
+border-radius:30px;
+background:linear-gradient(135deg,#ff66cc,#ff99ff);
+color:white;
+font-size:16px;
+cursor:pointer;
+opacity:0;
+transform:translateY(20px);
+transition:all .6s ease;
+box-shadow:0 0 15px rgba(255,105,180,0.6);
+}
+
+.princessBtn.show{
+opacity:1;
+transform:translateY(0);
+}
+
+.princessBtn:hover{
+box-shadow:0 0 25px rgba(255,105,180,0.9);
+}
+
+</style>
+</head>
+<body>
+
+<div class="space">
+<div class="moon"></div>
+</div>
+
+<div class="weather" id="weather"></div>
+<div class="breeze" id="breeze"></div>
+
+<div class="wrapper">
+<h2 id="scanText">Place your thumb and hold for 3 seconds</h2>
+
+<div class="fingerprintWrapper" id="fingerArea">
+<div class="laser" id="laser"></div>
+
+<svg viewBox="0 0 200 200" class="fingerprintSVG">
+<g stroke="#3fa9ff" stroke-width="3" fill="none">
+<ellipse cx="100" cy="100" rx="60" ry="80"/>
+<ellipse cx="100" cy="100" rx="50" ry="70"/>
+<ellipse cx="100" cy="100" rx="40" ry="60"/>
+<ellipse cx="100" cy="100" rx="30" ry="50"/>
+<ellipse cx="100" cy="100" rx="20" ry="40"/>
+<ellipse cx="100" cy="100" rx="10" ry="30"/>
+</g>
+<g stroke="#00ff66" stroke-width="3" fill="none" clip-path="url(#clipFill)">
+<ellipse cx="100" cy="100" rx="60" ry="80"/>
+<ellipse cx="100" cy="100" rx="50" ry="70"/>
+<ellipse cx="100" cy="100" rx="40" ry="60"/>
+<ellipse cx="100" cy="100" rx="30" ry="50"/>
+<ellipse cx="100" cy="100" rx="20" ry="40"/>
+<ellipse cx="100" cy="100" rx="10" ry="30"/>
+</g>
+<defs>
+<clipPath id="clipFill">
+<rect id="clipRect" x="0" y="200" width="200" height="0"/>
+</clipPath>
+</defs>
+</svg>
+</div>
+
+<button class="princessBtn" id="princessBtn">Tap here, Princess 🧚🏻</button>
+
+</div>
+
+<script>
+
+/* 250 Stars */
+const space=document.querySelector(".space");
+for(let i=0;i<250;i++){
+let star=document.createElement("div");
+star.className="star";
+star.style.top=Math.random()*100+"%";
+star.style.left=Math.random()*100+"%";
+space.appendChild(star);
+}
+
+/* Snow */
+function startSnow(){
+const container=document.getElementById("weather");
+setInterval(()=>{
+let rand=Math.random();
+if(rand<0.5){
+let flake=document.createElement("div");
+flake.className="snowflake";
+flake.innerHTML="❄";
+flake.style.left=Math.random()*100+"%";
+flake.style.fontSize=(12+Math.random()*14)+"px";
+flake.style.animationDuration=(4+Math.random()*6)+"s";
+container.appendChild(flake);
+setTimeout(()=>flake.remove(),10000);
+}
+else{
+let dot=document.createElement("div");
+dot.className="dot";
+dot.style.left=Math.random()*100+"%";
+dot.style.animationDuration=(4+Math.random()*6)+"s";
+container.appendChild(dot);
+setTimeout(()=>dot.remove(),10000);
+}
+},120);
+}
+
+/* Biometric */
+const fingerArea=document.getElementById("fingerArea");
+const clipRect=document.getElementById("clipRect");
+const laser=document.getElementById("laser");
+const scanText=document.getElementById("scanText");
+const breeze=document.getElementById("breeze");
+const princessBtn=document.getElementById("princessBtn");
+
+let holdTime=0;
+let interval;
+
+fingerArea.addEventListener("pointerdown", startHold);
+fingerArea.addEventListener("pointerup", resetHold);
+fingerArea.addEventListener("pointercancel", resetHold);
+
+function startHold(){
+fingerArea.classList.add("pressed","active");
+laser.classList.add("active");
+breeze.classList.add("active");
+startSnow();
+
+interval=setInterval(()=>{
+holdTime+=100;
+let progress=holdTime/3000;
+let height=progress*200;
+let y=200-height;
+clipRect.setAttribute("y", y);
+clipRect.setAttribute("height", height);
+
+if(holdTime>=3000){
+clearInterval(interval);
+unlock();
+}
+},100);
+}
+
+function resetHold(){
+clearInterval(interval);
+holdTime=0;
+clipRect.setAttribute("y",200);
+clipRect.setAttribute("height",0);
+fingerArea.classList.remove("pressed","active");
+laser.classList.remove("active");
+}
+
+function unlock(){
+laser.classList.remove("active");
+scanText.innerHTML="Aahh… your hand is so soft and comfy 💖<br>I got the access of perfect touch ✨";
+princessBtn.classList.add("show");
+}
+
+princessBtn.addEventListener("click",()=>{
+window.location.href="10_snow_hearts.html";
+});
+
+</script>
+
+</body>
+</html>

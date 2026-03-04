@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Light Up My World</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-user-select:none;
+user-select:none;
+-webkit-tap-highlight-color:transparent;
+}
+
+body{
+background:#000814;
+font-family:'Inter',sans-serif;
+color:white;
+overflow-x:hidden;
+}
+
+/* SKY */
+.sky{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at center, #000814 0%, #000000 70%);
+z-index:-5;
+transition:1.5s;
+}
+
+.sky.bright{
+background:radial-gradient(circle at center, #1a0033 0%, #000000 70%);
+}
+
+/* STARS */
+.star{
+position:absolute;
+width:2px;
+height:2px;
+background:white;
+border-radius:50%;
+box-shadow:0 0 6px white;
+animation:twinkle 2s infinite alternate;
+z-index:-4;
+}
+
+@keyframes twinkle{
+from{opacity:.4;}
+to{opacity:1;}
+}
+
+/* SNOW + HEARTS */
+.falling{
+position:fixed;
+top:-20px;
+font-size:18px;
+animation:fall linear forwards;
+pointer-events:none;
+z-index:-3;
+}
+
+@keyframes fall{
+to{
+transform:translateY(110vh);
+opacity:0.9;
+}
+}
+
+/* TORCH */
+.torchContainer{
+position:fixed;
+top:0;
+left:50%;
+transform:translateX(-50%);
+z-index:3;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+/* ... torch styles unchanged ... */
+
+.torch{
+width:70px;
+height:200px;
+background:linear-gradient(#222,#111);
+border-radius:25px;
+position:relative;
+}
+
+.torchHead{
+position:absolute;
+bottom:-40px;
+left:50%;
+transform:translateX(-50%);
+width:100px;
+height:50px;
+background:#333;
+border-radius:25px;
+}
+
+.switch{
+position:absolute;
+top:60px;
+left:50%;
+transform:translateX(-50%);
+width:30px;
+height:15px;
+background:#444;
+border-radius:10px;
+cursor:pointer;
+}
+
+.toggle{
+width:13px;
+height:13px;
+background:white;
+border-radius:50%;
+position:absolute;
+top:1px;
+left:1px;
+transition:.3s;
+}
+
+.switch.on .toggle{
+left:16px;
+background:lime;
+}
+
+/* MESSAGE */
+.message{
+position:fixed;
+top:260px;
+width:100%;
+text-align:center;
+font-size:18px;
+z-index:3;
+transition:1s;
+}
+
+/* BEAM */
+.beamArea{
+position:fixed;
+inset:0;
+pointer-events:none;
+opacity:0;
+transition:1s;
+z-index:1;
+}
+
+.beamArea.active{
+opacity:1;
+}
+
+.beamLight{
+position:absolute;
+top:80px;
+left:50%;
+transform:translateX(-50%);
+width:720px;
+height:720px;
+background:radial-gradient(circle, rgba(255,255,200,0.75) 0%, transparent 70%);
+border-radius:50%;
+}
+
+.word{
+position:absolute;
+font-size:14px;
+color:#ff4da6;
+transition:all 2s ease;
+}
+
+#finalName{
+position:absolute;
+font-family:'Playfair Display',serif;
+font-size:70px;
+opacity:0;
+text-shadow:0 0 35px hotpink;
+transition:1.5s;
+}
+
+/* GLASS OVERLAY (FULL SCREEN) */
+.glassOverlay{
+position:fixed;
+inset:0;
+backdrop-filter:blur(8px);
+background:rgba(255,255,255,0.03);
+opacity:0;
+pointer-events:none;
+transition:0.6s;
+z-index:4;
+}
+
+/* SCROLL SECTION */
+.scrollSection{
+margin-top:100vh;
+padding:120px 20px;
+display:none;
+position:relative;
+z-index:5;
+}
+
+.scrollSection.show{
+display:block;
+}
+
+/* GLASS BOX */
+.glassBox{
+max-width:650px;
+margin:0 auto;
+padding:50px;
+border-radius:25px;
+background:rgba(255,255,255,0.12);
+backdrop-filter:blur(05px);
+box-shadow:0 0 40px rgba(255,105,180,0.3);
+}
+
+.compliment{
+margin:30px 0;
+font-size:18px;
+opacity:0;
+transform:translateY(40px);
+transition:1s;
+}
+
+.compliment.show{
+opacity:1;
+transform:translateY(0);
+}
+
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" src="music.mp3"></audio>
+
+<div class="sky" id="sky"></div>
+
+<div class="torchContainer">
+<div class="torch">
+<div class="switch" id="switch">
+<div class="toggle"></div>
+</div>
+<div class="torchHead"></div>
+</div>
+</div>
+
+<div class="message" id="message">
+Let your beautiful touch light up my world.
+</div>
+
+<div class="beamArea" id="beamArea">
+<div class="beamLight"></div>
+<div id="finalName">RIFA</div>
+</div>
+
+<div class="glassOverlay" id="glassOverlay"></div>
+
+<div class="scrollSection" id="scrollSection">
+<div class="glassBox" id="glassBox"></div>
+</div>
+
+<script>
+
+/* Stars */
+for(let i=0;i<250;i++){
+let star=document.createElement("div");
+star.className="star";
+star.style.top=Math.random()*100+"%";
+star.style.left=Math.random()*100+"%";
+document.body.appendChild(star);
+}
+
+/* Snow + Hearts */
+let fallingInterval;
+
+const toggleSwitch=document.getElementById("switch");
+const beamArea=document.getElementById("beamArea");
+const finalName=document.getElementById("finalName");
+const sky=document.getElementById("sky");
+const message=document.getElementById("message");
+const bgMusic=document.getElementById("bgMusic");
+const scrollSection=document.getElementById("scrollSection");
+const glassOverlay=document.getElementById("glassOverlay");
+const glassBox=document.getElementById("glassBox");
+
+let isOn=false;
+
+toggleSwitch.addEventListener("click",()=>{
+
+isOn=!isOn;
+
+if(isOn){
+
+toggleSwitch.classList.add("on");
+beamArea.classList.add("active");
+sky.classList.add("bright");
+message.innerHTML="Ahhh… the magical touch ✨";
+
+/* Music */
+bgMusic.play();
+
+/* Snow */
+fallingInterval=setInterval(()=>{
+let el=document.createElement("div");
+el.className="falling";
+el.innerHTML=Math.random()>0.5?"❄":"💕";
+el.style.left=Math.random()*100+"%";
+el.style.fontSize=(14+Math.random()*10)+"px";
+el.style.animationDuration=(4+Math.random()*4)+"s";
+document.body.appendChild(el);
+setTimeout(()=>el.remove(),8000);
+},300);
+
+createWords();
+setTimeout(formHeart,1000);
+
+}else{
+bgMusic.pause();
+clearInterval(fallingInterval);
+}
+
+});
+
+function createWords(){
+for(let i=0;i<220;i++){
+let span=document.createElement("div");
+span.className="word";
+span.innerText="love you";
+span.style.left=Math.random()*window.innerWidth+"px";
+span.style.top=Math.random()*window.innerHeight+"px";
+beamArea.appendChild(span);
+}
+}
+
+function formHeart(){
+
+const words=document.querySelectorAll(".word");
+const centerX=(window.innerWidth/2)-35;
+const centerY=window.innerHeight/2+30;
+
+let heartPoints=[];
+for(let t=0;t<Math.PI*2;t+=0.09){
+let x=16*Math.pow(Math.sin(t),3);
+let y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+heartPoints.push({x:centerX+x*9,y:centerY-y*9});
+}
+
+words.forEach((el,i)=>{
+let p=heartPoints[i%heartPoints.length];
+el.style.left=p.x+"px";
+el.style.top=p.y+"px";
+});
+
+finalName.style.left=(centerX+24)+"px";
+finalName.style.top=centerY+"px";
+finalName.style.transform="translate(-50%,-50%)";
+
+setTimeout(()=>{
+finalName.style.opacity="1";
+document.body.style.overflowY="auto";
+scrollSection.classList.add("show");
+createCompliments();
+},1500);
+}
+
+function createCompliments(){
+
+const compliments=[
+"Your smile is my favorite sunrise.",
+"Even your 'chup raho' and 'shut up' makes me blush.",
+"Your voice makes my heart melt.",
+"Your eyes intoxicate me.",
+"You glow differently.",
+"You make silence feel special.",
+"You make my heartbeat misbehave.",
+"You’re prettier than you realize.",
+"Your presence feels like home.",
+"You are effortlessly stunning.",
+"You are heavenly cute.",
+"You make ordinary moments magical.",
+"Your laughter feels addictive.",
+"You make my world brighter.",
+"You calm my chaos.",
+"You make my heart race.",
+"You are my favorite distraction.",
+"You have the softest heart.",
+" your emojis 😒 , 🔪 , 😏 make ur attitude even more attractive .",
+"And honestly… I’m lucky to know you."
+];
+
+compliments.forEach(text=>{
+let div=document.createElement("div");
+div.className="compliment";
+div.innerText=text;
+glassBox.appendChild(div);
+});
+
+}
+
+/* Activate glass overlay only when scrolling */
+window.addEventListener("scroll",()=>{
+if(window.scrollY>50){
+glassOverlay.classList.add("active");
+}else{
+glassOverlay.classList.remove("active");
+}
+
+document.querySelectorAll(".compliment").forEach(el=>{
+const rect=el.getBoundingClientRect();
+if(rect.top<window.innerHeight*0.85){
+el.classList.add("show");
+}
+});
+});
+
+</script>
+</body>
+</html>
